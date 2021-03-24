@@ -5,18 +5,26 @@ sleep=${2:-1}
 show=${3:-0}
 name=${4:-""}
 
+unameOut="$(uname -s)"
+
+case "${unameOut}" in
+   Linux*)  waitTime=1;;
+   Darwin*) waitTime=1000;;
+   *) waitTime=1;;
+esac
+
 full_name=$host
 if [ -n "$name" ]; then
 full_name="${name} ${host}"
 fi
 
 if [ -z $host ]; then
-echo "Usage: `basename $0` [HOST]"
+echo "Usage: `basename $0` HOST [sleep_sec] [do_not_show_ok_1] [name_str]"
 exit 1
 fi
 
 while :; do
-result=`ping -W 1 -c 1 $host | grep 'bytes from '`
+result=`ping -W $waitTime -c 1 $host | grep 'bytes from '`
 if [ $? -gt 0 ]; then
    echo -e "`date +'%Y/%m/%d %H:%M:%S'` - $full_name is \033[0;31mdown\033[0m"
 else
