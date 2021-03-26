@@ -2,15 +2,16 @@
 
 host=$1
 sleep=${2:-1}
-show=${3:-0}
+show=${3:-1}
 name=${4:-""}
+short=${5:-0}
 
 unameOut="$(uname -s)"
 
 case "${unameOut}" in
-   Linux*)  waitTime=1;;
-   Darwin*) waitTime=1000;;
-   *) waitTime=1;;
+   Linux*)  waitTime="-W 1";;
+   Darwin*) waitTime="-W 1000 -t 1";;
+   *) waitTime="-W 1";;
 esac
 
 full_name=$host
@@ -19,17 +20,25 @@ full_name="${name} ${host}"
 fi
 
 if [ -z $host ]; then
-echo "Usage: `basename $0` HOST [sleep_sec] [do_not_show_ok_1] [name_str]"
+echo "Usage: `basename $0` HOST [sleep_sec_1] [show_ok_1] [name_str] [short_1]"
 exit 1
 fi
 
 while :; do
-result=`ping -W $waitTime -c 1 $host | grep 'bytes from '`
+result=`ping $waitTime -c 1 $host | grep 'bytes from '`
 if [ $? -gt 0 ]; then
-   echo -e "`date +'%Y/%m/%d %H:%M:%S'` - $full_name is \033[0;31mdown\033[0m"
+   if [ $short -eq 1 ]; then
+      echo -e "`date +'%H:%M:%S'` - $full_name is \033[0;31mdown\033[0m"
+   else
+      echo -e "`date +'%Y/%m/%d %H:%M:%S'` - $full_name is \033[0;31mdown\033[0m" 
+   fi
 else
-   if [ $show -eq 0 ]; then
-      echo -e "`date +'%Y/%m/%d %H:%M:%S'` - $full_name is \033[0;32mok\033[0m -`echo $result | cut -d ':' -f 2`"
+   if [ $show -eq 1 ]; then
+      if [ $short -eq 1 ]; then
+         echo -e "`date +'%H:%M:%S'` - $full_name is \033[0;32mok\033[0m `echo $result | cut -d ':' -f 2 | cut -d '=' -f 4`"
+      else
+         echo -e "`date +'%Y/%m/%d %H:%M:%S'` - $full_name is \033[0;32mok\033[0m -`echo $result | cut -d ':' -f 2 | cut -d '=' -f 2,3,4`"
+      fi
    fi
    sleep $sleep # avoid ping rain
 fi
