@@ -37,7 +37,7 @@ else
       if [ $short -eq 1 ]; then
          echo -e "`date +'%H:%M:%S'` - $full_name is \033[0;32mok\033[0m `echo $result | cut -d ':' -f 2 | cut -d '=' -f 4`"
       else
-         echo -e "`date +'%Y/%m/%d %H:%M:%S'` - $full_name is \033[0;32mok\033[0m -`echo $result | cut -d ':' -f 2 | cut -d '=' -f 2,3,4`"
+         echo -e "`date +'%Y/%m/%d %H:%M:%S'` - $full_name is \033[0;32mok\033[0m ttl=`echo $result | cut -d ':' -f 2 | cut -d '=' -f 3-4`"
       fi
    fi
    sleep $sleep # avoid ping rain
