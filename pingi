@@ -21,6 +21,9 @@ fi
 
 if [ -z $host ]; then
 echo "Usage: `basename $0` HOST [sleep_sec_1] [show_ok_1] [name_str] [short_1]"
+echo "Example short output: ./pingi 8.8.8.8 1 1 '' 1"
+echo "Example long output with name: ./pingi 8.8.8.8 1 1 google 0"
+echo
 exit 1
 fi
 
