@@ -1,0 +1,42 @@
+#!/bin/bash
+
+host=$1
+sleep=${2:-1}
+show=${3:-1}
+name=${4:-""}
+short=${5:-0}
+debug=${6:-0}
+
+
+full_name=$host
+if [ -n "$name" ]; then
+full_name="${name} ${host}"
+fi
+
+if [ -z $host ]; then
+echo "Usage: `basename $0` HOST [sleep_sec_1] [show_ok_1] [name_str] [debug]"
+echo "Example short output: ./curli https://xxx.xxx.xxx.xxx/xxx/index.html 1 1 'some name'"
+echo
+exit 1
+fi
+while :; do
+result=`curl -k --head -s -o /dev/null -w "%{http_code}" $host`
+if [ $debug -eq 1 ]; then
+   echo $result
+fi
+if [ $result -eq '000' ]; then
+   if [ $short -eq 1 ]; then
+      echo -e "`date +'%Y/%m/%d %H:%M:%S'` - $name is \033[0;31mdown\033[0m code $result" 
+   else
+      echo -e "`date +'%Y/%m/%d %H:%M:%S'` - $full_name is \033[0;31mdown\033[0m code $result" 
+   fi
+   sleep $sleep # avoid curl rain
+else
+   if [ $short -eq 1 ]; then
+      echo -e "`date +'%Y/%m/%d %H:%M:%S'` - $name is \033[0;32mok\033[0m code $result"
+   else
+      echo -e "`date +'%Y/%m/%d %H:%M:%S'` - $full_name is \033[0;32mok\033[0m code $result"
+   fi
+   sleep $sleep # avoid curl rain
+fi
+done
