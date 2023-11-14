@@ -1,0 +1,40 @@
+#!/bin/bash
+
+host=$1
+sleep=${2:-1}
+dns=${3:-1}
+name=${4:-""}
+debug=${5:-0}
+
+show=0
+
+full_name=$host
+if [ -n "$name" ]; then
+full_name="${name} ${host} ${dns}"
+fi
+
+if [ -z $host ]; then
+echo "Usage: `basename $0` HOST [sleep_sec_1] DNS_SRV [name_str] [debug]"
+echo "Example short output: ./digi helio.lv 8.8.8.8 'some name'"
+echo
+exit 1
+fi
+while :; do
+result=`/usr/bin/dig +short +time=1 +tries=1 \@$dns $host >/dev/null 2>&1`
+#result=`/usr/bin/dig \@$dns $host +short +time=1 +tries=1`
+status=$?
+counter=0
+if [ $debug -eq 1 ]; then
+   echo $result
+   echo "COMMAND RETURN CODE $status"
+fi
+if [ $status -gt 0 ]; then
+   echo -e "`date +'%Y/%m/%d %H:%M:%S'` - $full_name is \033[0;31mdown\033[0m" 
+#sleep $sleep # avoid curl rain
+else
+  if [ $show -eq 1 ]; then
+     echo -e "`date +'%Y/%m/%d %H:%M:%S'` - $full_name is \033[0;32mok\033[0m"
+     sleep $sleep # avoid curl rain
+  fi
+fi
+done
